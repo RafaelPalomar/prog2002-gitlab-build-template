@@ -13,7 +13,7 @@ build:
   script:
     # Configure
     - cmake -S . -B build
-	# Build
+    # Build
     - cmake --build build/
   artifacts:
     paths:
