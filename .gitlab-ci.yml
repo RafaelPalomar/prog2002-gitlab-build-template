@@ -3,9 +3,9 @@ stages:
   - build
 build_image:
   stage: prepare
-    image: docker:latest
-    script:
-        - docker build -f Docker/Dockerfile -t template .
+  image: docker:latest
+  script:
+    - docker build -f Docker/Dockerfile -t template .
 
 build:
   image: template
