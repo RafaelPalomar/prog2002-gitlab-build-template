@@ -1,11 +1,19 @@
 stages:
+  - prepare
   - build
+build_image:
+  stage: prepare
+    image: docker:latest
+    script:
+        - docker build -f Docker/Dockerfile -t template .
+
 build:
+  image: template
   stage: build
   script:
-    # Configure project
+    # Configure
     - cmake -S . -B build
-    # Build project. Build artifacts will automatically be made available to later jobs.
+	# Build
     - cmake --build build/
   artifacts:
     paths:
