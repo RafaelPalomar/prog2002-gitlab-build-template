@@ -1,0 +1,12 @@
+stages:
+  - build
+build:
+  stage: build
+  script:
+    # Configure project
+    - cmake -S . -B build
+    # Build project. Build artifacts will automatically be made available to later jobs.
+    - cmake --build build/
+  artifacts:
+    paths:
+      - build/
