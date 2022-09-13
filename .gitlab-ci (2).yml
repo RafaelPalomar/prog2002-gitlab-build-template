@@ -1,0 +1,34 @@
+stages:
+  - build
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  # Non-interactivly configure tzdata correctly to make https work
+  DEBIAN_FRONTEND: noninteractive
+  TZ: Europe/Oslo
+
+before_script:
+  - docker info
+
+services:
+  - docker:dind
+
+docker_build:
+  stage: build
+  image: docker:latest
+  script:
+    - docker build -f Docker/Dockerfile -t template .
+
+build:
+  stage: build
+  image: turbocartpig/prog2002-builder:latest
+  #tags:
+    #- docker
+  script:
+    # Configure project
+    - cmake -S . -B build
+    # Build project. Build artifacts will automatically be made available to later jobs.
+    - cmake --build build/
+  artifacts:
+    paths:
+      - build/
