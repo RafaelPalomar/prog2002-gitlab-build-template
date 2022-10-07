@@ -2,6 +2,9 @@ stages:
   - prepare
   - build
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 build:
   image: build-template
   stage: build
