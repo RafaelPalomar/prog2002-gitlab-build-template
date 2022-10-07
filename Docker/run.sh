@@ -4,10 +4,10 @@
 cd ..
 
 # Remove the old container
-docker rm -f template
+docker rm -f build-template
 
 # Build container
-docker build --build-arg cores=1 -f Docker/Dockerfile -t template .
+docker build --build-arg cores=1 -f Docker/Dockerfile -t build-template .
 
 # Start container
-docker run -it -d --name template template /bin/sh
+docker run -it -d --name build-template build-template /bin/sh

@@ -2,14 +2,8 @@ stages:
   - prepare
   - build
 
-build_image:
-  stage: prepare
-  image: docker:latest
-  script:
-    - docker build -f Docker/Dockerfile -t template .
-
 build:
-  image: template:latest
+  image: build-template
   stage: build
   script:
     # Configure
@@ -19,3 +13,5 @@ build:
   artifacts:
     paths:
       - build/
+    # set it to delete artifacts
+    expire_in: 1 minute
