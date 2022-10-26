@@ -9,6 +9,8 @@ parser.add_argument('--target-group-id', help='Group id to copy create new proje
 parser.add_argument('--groups', help='Amount of groups to create')
 parser.add_argument('--delete', help='If present, delete all projects in the target group', action='store_true')
 
+ci_config_path = '.gitlab-ci.yml@gitlab-instance-4ba8498b/gitlab-ci-test'
+
 args = parser.parse_args()
 
 gl = gitlab.Gitlab(args.gitlab_url, private_token=args.access_token)
