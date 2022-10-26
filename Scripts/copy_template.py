@@ -23,12 +23,24 @@ def clone_project_to(group_id, project_name):
     # Need to assign both username and access token to make it a 'valid' project url
     import_url = project.http_url_to_repo.replace('://', f'://{gl.user.username}:{args.access_token}@')
 
+    # https://docs.gitlab.com/ee/api/projects.html#create-project
     cloned_project = gl.projects.create({
         'namespace_id': group_id,
         'name': project_name,
         'import_url': import_url,
-        'initialize_with_readme': False
+        'initialize_with_readme': False,
+        'ci_config_path': ci_config_path
         })
+
+    # Only allow maintainers to push to the main branch
+    cloned_project.protectedbranches.create(
+        {
+            'name': 'main',
+            'merge_access_level': gitlab.const.AccessLevel.DEVELOPER,
+            'push_access_level': gitlab.const.AccessLevel.MAINTAINER,
+        }
+    )
+
     print(f'Created project {cloned_project.name} with id {cloned_project.id} at {cloned_project.http_url_to_repo}')
 
 if args.delete:
