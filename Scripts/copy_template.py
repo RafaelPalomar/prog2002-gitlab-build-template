@@ -8,8 +8,7 @@ parser.add_argument('--project-id', help='Project id to copy from')
 parser.add_argument('--target-group-id', help='Group id to copy create new projects in')
 parser.add_argument('--groups', help='Amount of groups to create')
 parser.add_argument('--delete', help='If present, delete all projects in the target group', action='store_true')
-
-ci_config_path = '.gitlab-ci.yml@gitlab-instance-4ba8498b/gitlab-ci-test'
+parser.add_argument('--ci-config-path', help='Path to the ci config')
 
 args = parser.parse_args()
 
@@ -29,10 +28,11 @@ def clone_project_to(group_id, project_name):
         'name': project_name,
         'import_url': import_url,
         'initialize_with_readme': False,
-        'ci_config_path': ci_config_path
+        'ci_config_path': args.ci_config_path
         })
 
     # Only allow maintainers to push to the main branch
+    # Allow developers to merge to the main branch
     cloned_project.protectedbranches.create(
         {
             'name': 'main',
