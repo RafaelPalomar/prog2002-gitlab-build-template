@@ -20,3 +20,13 @@ When you run the script it will clone and import from the repo/project specified
 You should now be able to add a simple C++ program using `CMakeLists.txt` accompanied by a source file to the original/template repo you are cloning from. The CI should run when you push to a clone or create a merge requests in the clone.
 
 It is worth noting that everything should work even if the only thing you have done for the new template repo is to create it and add the simple C++ program and then use it as the template. There is no need to configure anything else in the template repo.
+
+
+**.env** file:
+```
+GITLAB_ACCESS_TOKEN = Gitlab access token
+GITLAB_URL = Gitlab url
+SOURCE_PROJECT_ID = Project id to clone from
+TARGET_GROUP_ID = Group id to clone new project to
+CI_CONFIG_PATH = Path to the CI config
+```

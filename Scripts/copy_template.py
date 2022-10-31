@@ -1,18 +1,24 @@
 import argparse
 import gitlab
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 parser = argparse.ArgumentParser(description='Copy a template repository to new repositories')
-parser.add_argument('--access-token', help='Gitlab access token')
-parser.add_argument('--gitlab-url', help='Gitlab url')
-parser.add_argument('--project-id', help='Project id to copy from')
-parser.add_argument('--target-group-id', help='Group id to copy create new projects in')
 parser.add_argument('--groups', help='Amount of groups to create')
 parser.add_argument('--delete', help='If present, delete all projects in the target group', action='store_true')
-parser.add_argument('--ci-config-path', help='Path to the ci config')
+
 
 args = parser.parse_args()
 
-gl = gitlab.Gitlab(args.gitlab_url, private_token=args.access_token)
+GITLAB_ACCESS_TOKEN = os.getenv('GITLAB_ACCESS_TOKEN')
+GITLAB_URL = os.getenv('GITLAB_URL')
+SOURCE_PROJECT_ID = os.getenv('SOURCE_PROJECT_ID')
+TARGET_GROUP_ID = os.getenv('TARGET_GROUP_ID')
+CI_CONFIG_PATH=os.getenv('CI_CONFIG_PATH')
+
+print(f'Connecting to {GITLAB_URL} with access token {GITLAB_ACCESS_TOKEN}')
+gl = gitlab.Gitlab(GITLAB_URL, private_token=GITLAB_ACCESS_TOKEN)
 
 gl.auth()
 
@@ -29,10 +35,10 @@ def clone_issue(from_project, to_project, issue):
         print(f'Failed to clone issue {issue.iid} from {from_project.name} to {to_project.name}: {e}')
 
 def clone_project_to(group_id, project_name):
-    project = gl.projects.get(args.project_id)
+    project = gl.projects.get(SOURCE_PROJECT_ID)
 
     # Need to assign both username and access token to make it a 'valid' project url
-    import_url = project.http_url_to_repo.replace('://', f'://{gl.user.username}:{args.access_token}@')
+    import_url = project.http_url_to_repo.replace('://', f'://{gl.user.username}:{GITLAB_ACCESS_TOKEN}@')
 
     # https://docs.gitlab.com/ee/api/projects.html#create-project
     cloned_project = gl.projects.create({
@@ -40,7 +46,7 @@ def clone_project_to(group_id, project_name):
         'name': project_name,
         'import_url': import_url,
         'initialize_with_readme': False,
-        'ci_config_path': args.ci_config_path
+        'ci_config_path': CI_CONFIG_PATH
         })
 
     # Only allow maintainers to push to the main branch
@@ -60,11 +66,11 @@ def clone_project_to(group_id, project_name):
     print(f'Created project {cloned_project.name} with id {cloned_project.id} at {cloned_project.http_url_to_repo}')
 
 if args.delete:
-    target_group = gl.groups.get(args.target_group_id)
+    target_group = gl.groups.get(TARGET_GROUP_ID)
     for project in target_group.projects.list(get_all=True):
         print(f'Deleting project {project.name} with id {project.id}')
         gl.projects.delete(project.id)
 
 else:
     for i in range(int(args.groups)):
-        clone_project_to(args.target_group_id, "Group_" + str(i))
+        clone_project_to(TARGET_GROUP_ID, "Group_" + str(i))
