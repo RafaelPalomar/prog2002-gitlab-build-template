@@ -16,6 +16,18 @@ gl = gitlab.Gitlab(args.gitlab_url, private_token=args.access_token)
 
 gl.auth()
 
+# https://python-gitlab.readthedocs.io/en/stable/api/gitlab.html
+# https://docs.gitlab.com/ee/api/issues.html#clone-an-issue
+def clone_issue(from_project, to_project, issue):
+    query = f'/projects/{from_project.id}/issues/{issue.iid}/clone'
+    try:
+        gl.http_post(query, query_data={
+            'to_project_id': to_project.id,
+            'with_notes': True
+        })
+    except gitlab.exceptions.GitlabCreateError as e:
+        print(f'Failed to clone issue {issue.iid} from {from_project.name} to {to_project.name}: {e}')
+
 def clone_project_to(group_id, project_name):
     project = gl.projects.get(args.project_id)
 
@@ -40,6 +52,10 @@ def clone_project_to(group_id, project_name):
             'push_access_level': gitlab.const.AccessLevel.MAINTAINER,
         }
     )
+
+    for issue in project.issues.list(get_all=True):
+        print(f'Cloning issue {issue.iid} from {project.name} to {cloned_project.name}')
+        clone_issue(project, cloned_project, issue)
 
     print(f'Created project {cloned_project.name} with id {cloned_project.id} at {cloned_project.http_url_to_repo}')
 
